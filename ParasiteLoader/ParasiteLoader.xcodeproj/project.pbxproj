@@ -1,0 +1,265 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		FA42F12B1CAC746900AB959B /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FA42F12A1CAC746900AB959B /* CoreFoundation.framework */; };
+		FA42F12D1CAC747800AB959B /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = FA42F12C1CAC747800AB959B /* main.c */; };
+		FA42F1321CAC777400AB959B /* loader.c in Sources */ = {isa = PBXBuildFile; fileRef = FA42F1301CAC777400AB959B /* loader.c */; };
+		FA42F1331CAC777400AB959B /* loader.h in Headers */ = {isa = PBXBuildFile; fileRef = FA42F1311CAC777400AB959B /* loader.h */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		FA42F1231CAC744300AB959B /* ParasiteLoader.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = ParasiteLoader.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		FA42F12A1CAC746900AB959B /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
+		FA42F12C1CAC747800AB959B /* main.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
+		FA42F12F1CAC74DE00AB959B /* main.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = main.h; sourceTree = "<group>"; };
+		FA42F1301CAC777400AB959B /* loader.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = loader.c; sourceTree = "<group>"; };
+		FA42F1311CAC777400AB959B /* loader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = loader.h; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		FA42F1201CAC744300AB959B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FA42F12B1CAC746900AB959B /* CoreFoundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		FA42F11A1CAC744300AB959B = {
+			isa = PBXGroup;
+			children = (
+				FA42F12E1CAC748100AB959B /* src */,
+				FA42F12A1CAC746900AB959B /* CoreFoundation.framework */,
+				FA42F1241CAC744300AB959B /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		FA42F1241CAC744300AB959B /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				FA42F1231CAC744300AB959B /* ParasiteLoader.dylib */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		FA42F12E1CAC748100AB959B /* src */ = {
+			isa = PBXGroup;
+			children = (
+				FA42F12F1CAC74DE00AB959B /* main.h */,
+				FA42F12C1CAC747800AB959B /* main.c */,
+				FA42F1311CAC777400AB959B /* loader.h */,
+				FA42F1301CAC777400AB959B /* loader.c */,
+			);
+			name = src;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		FA42F1211CAC744300AB959B /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FA42F1331CAC777400AB959B /* loader.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		FA42F1221CAC744300AB959B /* ParasiteLoader */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = FA42F1271CAC744300AB959B /* Build configuration list for PBXNativeTarget "ParasiteLoader" */;
+			buildPhases = (
+				FA42F11F1CAC744300AB959B /* Sources */,
+				FA42F1201CAC744300AB959B /* Frameworks */,
+				FA42F1211CAC744300AB959B /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ParasiteLoader;
+			productName = ParasiteLoader;
+			productReference = FA42F1231CAC744300AB959B /* ParasiteLoader.dylib */;
+			productType = "com.apple.product-type.library.dynamic";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		FA42F11B1CAC744300AB959B /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0720;
+				ORGANIZATIONNAME = ParasiteTeam;
+				TargetAttributes = {
+					FA42F1221CAC744300AB959B = {
+						CreatedOnToolsVersion = 7.2;
+					};
+				};
+			};
+			buildConfigurationList = FA42F11E1CAC744300AB959B /* Build configuration list for PBXProject "ParasiteLoader" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = FA42F11A1CAC744300AB959B;
+			productRefGroup = FA42F1241CAC744300AB959B /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				FA42F1221CAC744300AB959B /* ParasiteLoader */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		FA42F11F1CAC744300AB959B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FA42F1321CAC777400AB959B /* loader.c in Sources */,
+				FA42F12D1CAC747800AB959B /* main.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		FA42F1251CAC744300AB959B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DSTROOT = /tmp/ParasiteLoader.dst;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		FA42F1261CAC744300AB959B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEPLOYMENT_LOCATION = YES;
+				DSTROOT = /;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		FA42F1281CAC744300AB959B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				EXECUTABLE_PREFIX = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		FA42F1291CAC744300AB959B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				EXECUTABLE_PREFIX = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		FA42F11E1CAC744300AB959B /* Build configuration list for PBXProject "ParasiteLoader" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FA42F1251CAC744300AB959B /* Debug */,
+				FA42F1261CAC744300AB959B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		FA42F1271CAC744300AB959B /* Build configuration list for PBXNativeTarget "ParasiteLoader" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FA42F1281CAC744300AB959B /* Debug */,
+				FA42F1291CAC744300AB959B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = FA42F11B1CAC744300AB959B /* Project object */;
+}
