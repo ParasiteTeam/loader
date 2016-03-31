@@ -50,7 +50,8 @@ static void __ParasiteInit(int argc, char **argv, char **envp) {
     BLACKLIST(mDNSResponder);
     BLACKLIST(useractivityd);
     BLACKLIST(syslogd);
-    
+    BLACKLIST(ssh);
+
     // Blacklist developer tools
     BLACKLIST(git);
     BLACKLIST(xcodebuild);
