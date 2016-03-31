@@ -11,7 +11,7 @@
 
 bool commit_status(bool orig, bool new, bool match_all) {
     if (orig && new) return true;
-    else if (new && !match_all) return true;
+    else if ((new || orig) && !match_all) return true;
     return false;
 }
 
@@ -51,13 +51,13 @@ bool check_cf_version(CFDictionaryRef filters) {
         }
     }
     
-    return true;
+    return versionFilter == NULL;
 }
 
 bool check_executable_name(CFDictionaryRef filters, CFStringRef executableName) {
     CFArrayRef executableFilter = CFDictionaryGetValue(filters, kOPExecutablesKey);
     
-    if (executableFilter && CFGetTypeID(executableFilter) == CFArrayGetTypeID()) {
+    if (executableFilter != NULL && CFGetTypeID(executableFilter) == CFArrayGetTypeID()) {
         for (CFIndex i = 0; i < CFArrayGetCount(executableFilter); i++) {
             CFStringRef name = CFArrayGetValueAtIndex(executableFilter, i);
             if (CFEqual(executableName, name)) {
@@ -66,7 +66,7 @@ bool check_executable_name(CFDictionaryRef filters, CFStringRef executableName) 
         }
     }
     
-    return false;
+    return executableFilter == NULL;
 }
 
 bool check_bundles(CFDictionaryRef filters) {
@@ -81,7 +81,7 @@ bool check_bundles(CFDictionaryRef filters) {
         }
     }
     
-    return false;
+    return bundlesFilter == NULL;
 }
 
 bool check_classes(CFDictionaryRef filters) {
@@ -105,7 +105,7 @@ bool check_classes(CFDictionaryRef filters) {
         }
     }
     
-    return false;
+    return classesFilter == NULL;
 }
 
 void __ParasiteProcessExtensions(CFURLRef libraries, CFBundleRef mainBundle, CFStringRef executableName) {
@@ -130,10 +130,15 @@ void __ParasiteProcessExtensions(CFURLRef libraries, CFBundleRef mainBundle, CFS
         
         CFDictionaryRef info = CFBundleGetInfoDictionary(bundle);
         if (info == NULL || CFGetTypeID(info) != CFDictionaryGetTypeID()) {
+            CFRelease(bundle);
             continue;
         }
         
         CFDictionaryRef filters = CFDictionaryGetValue(info, kOPFiltersKey);
+        if (filters == NULL || CFGetTypeID(filters) != CFDictionaryGetTypeID()) {
+            CFRelease(bundle);
+            continue;
+        }
         
         bool match_all = true;
         CFStringRef mode = CFDictionaryGetValue(filters, kOPModeKey);
@@ -149,6 +154,7 @@ void __ParasiteProcessExtensions(CFURLRef libraries, CFBundleRef mainBundle, CFS
         if (status) {
             // CFBundleLoad doesn't use the correct dlopen flags
             CFURLRef executableURL = CFBundleCopyExecutableURL(bundle);
+
             if (executableURL != NULL) {
                 const char executablePath[PATH_MAX];
                 CFURLGetFileSystemRepresentation(executableURL, true, (UInt8*)&executablePath, PATH_MAX);
@@ -157,7 +163,7 @@ void __ParasiteProcessExtensions(CFURLRef libraries, CFBundleRef mainBundle, CFS
                 // load the dylib
                 void *handle = dlopen(executablePath, RTLD_LAZY | RTLD_GLOBAL);
                 if (handle == NULL) {
-                    // OPLog(OPLogLevelError, "%s", dlerror());
+                     OPLog(OPLogLevelError, "%s", dlerror());
                 }
             }
         }

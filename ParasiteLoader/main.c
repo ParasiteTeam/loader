@@ -11,7 +11,7 @@
 
 const CFStringRef kOPFiltersKey     = CFSTR("OPFilters");
 const CFStringRef kSIMBLFiltersKey  = CFSTR("SIMBLTargetApplications");
-const char *OPLibrariesPath         = "/Library/Opee/Extensions";
+const char *OPLibrariesPath         = "/Library/Parasite/Extensions";
 
 const CFStringRef kOPBundleIdentifierKey = CFSTR("BundleIdentifier");
 const CFStringRef kOPMinBundleVersionKey = CFSTR("MinBundleVersion");
@@ -29,7 +29,7 @@ static void __ParasiteInit(int argc, char **argv, char **envp) {
     if (dlopen("/System/Library/Frameworks/Security.framework/Security", RTLD_LAZY | RTLD_NOLOAD) == NULL)
         return;
     
-    if (argc < 1 || argv == NULL || getuid() == 0)
+    if (argc < 1 || argv == NULL)
         return;
     
     
@@ -51,17 +51,22 @@ static void __ParasiteInit(int argc, char **argv, char **envp) {
                                                                  executable,
                                                                  kCFStringEncodingUTF8,
                                                                  kCFAllocatorNull);
+    if (executableName == NULL) return;
     
     // Process extensions for all users
     CFURLRef libraries = CFURLCreateFromFileSystemRepresentation(kCFAllocatorDefault,
                                                                  (const UInt8 *)OPLibrariesPath,
                                                                  strlen(OPLibrariesPath),
                                                                  true);
+    if (libraries == NULL) {
+        CFRelease(executableName);
+        return;
+    }
     
     if (access(OPLibrariesPath, X_OK | R_OK) == -1) {
-//        OPLog(OPLogLevelError, "Unable to access root libraries directory");
+        OPLog(OPLogLevelNotice, "Unable to access root libraries directory\n");
         
-    } else if (libraries != NULL) {
+    } else {
         __ParasiteProcessExtensions(libraries, mainBundle, executableName);
     }
     
