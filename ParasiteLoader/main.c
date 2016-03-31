@@ -62,13 +62,6 @@ static void __ParasiteInit(int argc, char **argv, char **envp) {
     BLACKLIST(com.apple.dt.Xcode.sourcecontrol.Git);
     
     CFBundleRef mainBundle = CFBundleGetMainBundle();
-    
-#ifdef DEBUG
-//    CFDictionaryRef info = CFBundleGetInfoDictionary(mainBundle);
-//    CFStringRef identifier = (info == NULL) ? NULL : CFDictionaryGetValue(info, kCFBundleIdentifierKey);
-//    OPLog(OPLogLevelNotice, "Installing %@ [%s] (%.2f)", identifier, executable, kCFCoreFoundationVersionNumber);
-#endif
-    
     CFStringRef executableName = CFStringCreateWithCStringNoCopy(kCFAllocatorDefault,
                                                                  executable,
                                                                  kCFStringEncodingUTF8,

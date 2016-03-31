@@ -10,9 +10,7 @@
 #include "loader.h"
 
 bool commit_status(bool orig, bool new, bool match_all) {
-    if (orig && new) return true;
-    else if ((new || orig) && !match_all) return true;
-    return false;
+    return (orig && new) || ((new || orig) && !match_all);
 }
 
 bool check_cf_version(CFDictionaryRef filters) {
@@ -150,7 +148,7 @@ void __ParasiteProcessExtensions(CFURLRef libraries, CFBundleRef mainBundle, CFS
         status = commit_status(status, check_executable_name(filters, executableName), match_all);
         status = commit_status(status, check_bundles(filters), match_all);
         status = commit_status(status, check_classes(filters), match_all);
-
+        
         if (status) {
             // CFBundleLoad doesn't use the correct dlopen flags
             CFURLRef executableURL = CFBundleCopyExecutableURL(bundle);
