@@ -32,13 +32,34 @@ static void __ParasiteInit(int argc, char **argv, char **envp) {
     if (argc < 1 || argv == NULL)
         return;
     
-    
     // The first argument is the spawned process
     // Get the process name by looking at the last path
     // component.
     char *executable = strrchr(argv[0], '/');
     executable = (executable == NULL) ? argv[0] : executable + 1;
 
+#define BLACKLIST(PROCESS) if (strcmp(executable, #PROCESS) == 0) return;
+    /*
+     These are processes which are blacklisted because they break
+     some system functionality
+     */
+    BLACKLIST(coreservicesd);
+    BLACKLIST(amfid);
+    
+    BLACKLIST(ReportCrash);
+    BLACKLIST(mDNSResponder);
+    BLACKLIST(useractivityd);
+    BLACKLIST(syslogd);
+    
+    // Blacklist developer tools
+    BLACKLIST(git);
+    BLACKLIST(xcodebuild);
+    BLACKLIST(gcc);
+    BLACKLIST(lldb);
+    BLACKLIST(codesign);
+    BLACKLIST(svn);
+    BLACKLIST(com.apple.dt.Xcode.sourcecontrol.Git);
+    
     CFBundleRef mainBundle = CFBundleGetMainBundle();
     
 #ifdef DEBUG
