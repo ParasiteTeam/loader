@@ -13,6 +13,9 @@ static void *(*getClassObj)(void *) = NULL;
 static void *(*getClass)(const char *) = NULL;
 static void *(*registerName)(const char *) = NULL;
 static bool (*respondsToSelector)(void *, void *) = NULL;
+// Not worrying about casting this correctly
+// Since I only ever use it on + (void)install;
+// which is void (*)(id, SEL)
 static void (*msgSend)(void *, void *);
 
 void solve_symbols() {
@@ -102,7 +105,12 @@ bool check_bundles(CFArrayRef bundlesFilter) {
                 
                 if (bundleName != NULL) {
                     if (CFEqual(bundleName, CFSTR("*"))) {
-                        return true;
+                        // * means we want to load into anything with a bundle
+                        // this is to keep this functionality on par with the behavior of SIMBL
+                        // which only loads into cocoa applications.
+                        // If you really want to load into every process I suggest you rethink
+                        // what you are doing.
+                        return CFBundleGetMainBundle() != NULL;
                     }
                     
                     CFBundleRef bndl = CFBundleGetBundleWithIdentifier(bundleName);
