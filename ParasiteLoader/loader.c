@@ -150,6 +150,8 @@ void __ParasiteProcessExtensions(CFURLRef libraries, CFBundleRef mainBundle, CFS
     CFRelease(folder);
     if (bundles == NULL) return;
     
+    CFMutableArrayRef shouldLoad = CFArrayCreateMutable(kCFAllocatorDefault, CFArrayGetCount(bundles), &kCFTypeArrayCallBacks);
+    
     for (CFIndex i = 0; i < CFArrayGetCount(bundles); i++) {
         bool status = true;
         
@@ -183,25 +185,30 @@ void __ParasiteProcessExtensions(CFURLRef libraries, CFBundleRef mainBundle, CFS
         status = commit_status(status, check_classes(filters), match_all);
         
         if (status) {
-            // CFBundleLoad doesn't use the correct dlopen flags
             CFURLRef executableURL = CFBundleCopyExecutableURL(bundle);
-
             if (executableURL != NULL) {
-                const char executablePath[PATH_MAX];
-                CFURLGetFileSystemRepresentation(executableURL, true, (UInt8*)&executablePath, PATH_MAX);
+                CFArrayAppendValue(shouldLoad, executableURL);
                 CFRelease(executableURL);
-                
-                // load the dylib
-                void *handle = dlopen(executablePath, RTLD_LAZY | RTLD_GLOBAL);
-                if (handle == NULL) {
-                     OPLog(OPLogLevelError, "%s", dlerror());
-                }
             }
         }
         
         CFRelease(bundle);
     }
     
-fin:
+    for (CFIndex i = 0; i < CFArrayGetCount(shouldLoad); i++) {
+        CFURLRef executableURL = CFArrayGetValueAtIndex(shouldLoad, i);
+        const char executablePath[PATH_MAX];
+        CFURLGetFileSystemRepresentation(executableURL, true, (UInt8*)&executablePath, PATH_MAX);
+        
+        // load the dylib
+        // CFBundleLoad doesn't use the correct dlopen flags
+        void *handle = dlopen(executablePath, RTLD_LAZY | RTLD_GLOBAL);
+        if (handle == NULL) {
+            OPLog(OPLogLevelError, "%s", dlerror());
+        }
+        
+    }
+    
     CFRelease(bundles);
+    CFRelease(shouldLoad);
 }
