@@ -72,9 +72,42 @@ bool check_bundles(CFDictionaryRef filters) {
     
     if (bundlesFilter != NULL && CFGetTypeID(bundlesFilter) == CFArrayGetTypeID()) {
         for (CFIndex i = 0; i < CFArrayGetCount(bundlesFilter); i++) {
-            CFStringRef bundleName = CFArrayGetValueAtIndex(bundlesFilter, i);
-            if (CFBundleGetBundleWithIdentifier(bundleName) != NULL) {
-                return true;
+            CFTypeRef entry = CFArrayGetValueAtIndex(bundlesFilter, i);
+            
+            if (CFGetTypeID(entry) == CFStringGetTypeID()) {
+                CFStringRef bundleName = entry;
+                CFBundleRef bndl = CFBundleGetBundleWithIdentifier(bundleName);
+                if (bndl != NULL) {
+                    return true;
+                }
+                
+            } else if (CFGetTypeID(entry) == CFDictionaryGetTypeID()) {
+                CFDictionaryRef filter = entry;
+                CFStringRef bundleName = CFDictionaryGetValue(filter, kOPBundleIdentifierKey);
+                
+                if (bundleName != NULL) {
+                    CFBundleRef bndl = CFBundleGetBundleWithIdentifier(bundleName);
+                    if (bndl == NULL) continue;
+                    
+                    CFNumberRef minNum = CFDictionaryGetValue(filter, kOPMinBundleVersionKey);
+                    CFNumberRef maxNum = CFDictionaryGetValue(filter, kOPMaxBundleVersionKey);
+                    
+                    unsigned int version = CFBundleGetVersionNumber(bndl);
+                    
+                    if (minNum != NULL) {
+                        unsigned int min = 0;
+                        CFNumberGetValue(minNum, kCFNumberIntType, &min);
+                        if (min > version) continue;
+                    }
+                    
+                    if (maxNum != NULL) {
+                        unsigned int max = 0;
+                        CFNumberGetValue(maxNum, kCFNumberIntType, &max);
+                        if (max < version) continue;
+                    }
+                    
+                    return true;
+                }
             }
         }
     }
