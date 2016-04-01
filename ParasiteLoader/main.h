@@ -31,22 +31,22 @@
     #define OPLog(...) (void)1
 #endif
 
+extern const CFStringRef kPSFiltersKey;
 extern const CFStringRef kOPFiltersKey;
 extern const CFStringRef kSIMBLFiltersKey;
-extern const char *OPLibrariesPath;
+extern const char *PSLibrariesPath;
 
 // SIMBL
-extern const CFStringRef kOPBundleIdentifierKey;
-extern const CFStringRef kOPMinBundleVersionKey;
-extern const CFStringRef kOPMaxBundleVersionKey;
+extern const CFStringRef kPSBundleIdentifierKey;
+extern const CFStringRef kPSMinBundleVersionKey;
+extern const CFStringRef kPSMaxBundleVersionKey;
 
 // OPFilters
-extern const CFStringRef kOPCoreFoundationVersionKey;
-extern const CFStringRef kOPModeKey;
-extern const CFStringRef kOPAnyValue;
-extern const CFStringRef kOPExecutablesKey;
-extern const CFStringRef kOPBundlesKey;
-extern const CFStringRef kOPClassesKey;
-extern const CFStringRef kOPAllowsRootKey;
+extern const CFStringRef kPSCoreFoundationVersionKey;
+extern const CFStringRef kPSModeKey;
+extern const CFStringRef kPSAnyValue;
+extern const CFStringRef kPSExecutablesKey;
+extern const CFStringRef kPSBundlesKey;
+extern const CFStringRef kPSClassesKey;
 
 #endif /* main_h */

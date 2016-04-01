@@ -9,20 +9,21 @@
 #include "main.h"
 #include "loader.h"
 
+const CFStringRef kPSFiltersKey     = CFSTR("PSFilters");
 const CFStringRef kOPFiltersKey     = CFSTR("OPFilters");
 const CFStringRef kSIMBLFiltersKey  = CFSTR("SIMBLTargetApplications");
 const char *OPLibrariesPath         = "/Library/Parasite/Extensions";
 
-const CFStringRef kOPBundleIdentifierKey = CFSTR("BundleIdentifier");
-const CFStringRef kOPMinBundleVersionKey = CFSTR("MinBundleVersion");
-const CFStringRef kOPMaxBundleVersionKey = CFSTR("MaxBundleVersion");
+const CFStringRef kPSBundleIdentifierKey = CFSTR("BundleIdentifier");
+const CFStringRef kPSMinBundleVersionKey = CFSTR("MinBundleVersion");
+const CFStringRef kPSMaxBundleVersionKey = CFSTR("MaxBundleVersion");
 
-const CFStringRef kOPCoreFoundationVersionKey = CFSTR("CoreFoundationVersion");
-const CFStringRef kOPModeKey                  = CFSTR("Mode");
-const CFStringRef kOPAnyValue                 = CFSTR("Any");
-const CFStringRef kOPExecutablesKey           = CFSTR("Executables");
-const CFStringRef kOPBundlesKey               = CFSTR("Bundles");
-const CFStringRef kOPClassesKey               = CFSTR("Classes");
+const CFStringRef kPSCoreFoundationVersionKey = CFSTR("CoreFoundationVersion");
+const CFStringRef kPSModeKey                  = CFSTR("Mode");
+const CFStringRef kPSAnyValue                 = CFSTR("Any");
+const CFStringRef kPSExecutablesKey           = CFSTR("Executables");
+const CFStringRef kPSBundlesKey               = CFSTR("Bundles");
+const CFStringRef kPSClassesKey               = CFSTR("Classes");
 
 __attribute__((constructor))
 static void __ParasiteInit(int argc, char **argv, char **envp) {

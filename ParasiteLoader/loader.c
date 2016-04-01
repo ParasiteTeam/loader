@@ -9,12 +9,29 @@
 #include "main.h"
 #include "loader.h"
 
+static void *(*getClassObj)(void *) = NULL;
+static void *(*getClass)(const char *) = NULL;
+static void *(*registerName)(const char *) = NULL;
+static bool (*respondsToSelector)(void *, void *) = NULL;
+static void (*msgSend)(void *, void *);
+
+void solve_symbols() {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        getClass = dlsym(RTLD_DEFAULT, "objc_getClass");
+        getClassObj = dlsym(RTLD_DEFAULT, "object_getClass");
+        registerName = dlsym(RTLD_DEFAULT, "sel_registerName");
+        respondsToSelector = dlsym(RTLD_DEFAULT, "class_respondsToSelector");
+        msgSend = dlsym(RTLD_DEFAULT, "objc_msgSend");
+    });
+}
+
 bool commit_status(bool orig, bool new, bool match_all) {
     return (orig && new) || ((new || orig) && !match_all);
 }
 
 bool check_cf_version(CFDictionaryRef filters) {
-    CFArrayRef versionFilter = CFDictionaryGetValue(filters, kOPCoreFoundationVersionKey);
+    CFArrayRef versionFilter = CFDictionaryGetValue(filters, kPSCoreFoundationVersionKey);
     
     if (versionFilter != NULL && CFGetTypeID(versionFilter) == CFArrayGetTypeID()) {
         CFIndex count = CFArrayGetCount(versionFilter);
@@ -53,7 +70,7 @@ bool check_cf_version(CFDictionaryRef filters) {
 }
 
 bool check_executable_name(CFDictionaryRef filters, CFStringRef executableName) {
-    CFArrayRef executableFilter = CFDictionaryGetValue(filters, kOPExecutablesKey);
+    CFArrayRef executableFilter = CFDictionaryGetValue(filters, kPSExecutablesKey);
     
     if (executableFilter != NULL && CFGetTypeID(executableFilter) == CFArrayGetTypeID()) {
         for (CFIndex i = 0; i < CFArrayGetCount(executableFilter); i++) {
@@ -67,9 +84,7 @@ bool check_executable_name(CFDictionaryRef filters, CFStringRef executableName) 
     return executableFilter == NULL;
 }
 
-bool check_bundles(CFDictionaryRef filters) {
-    CFArrayRef bundlesFilter = CFDictionaryGetValue(filters, kOPBundlesKey);
-    
+bool check_bundles(CFArrayRef bundlesFilter) {
     if (bundlesFilter != NULL && CFGetTypeID(bundlesFilter) == CFArrayGetTypeID()) {
         for (CFIndex i = 0; i < CFArrayGetCount(bundlesFilter); i++) {
             CFTypeRef entry = CFArrayGetValueAtIndex(bundlesFilter, i);
@@ -83,14 +98,18 @@ bool check_bundles(CFDictionaryRef filters) {
                 
             } else if (CFGetTypeID(entry) == CFDictionaryGetTypeID()) {
                 CFDictionaryRef filter = entry;
-                CFStringRef bundleName = CFDictionaryGetValue(filter, kOPBundleIdentifierKey);
+                CFStringRef bundleName = CFDictionaryGetValue(filter, kPSBundleIdentifierKey);
                 
                 if (bundleName != NULL) {
+                    if (CFEqual(bundleName, CFSTR("*"))) {
+                        return true;
+                    }
+                    
                     CFBundleRef bndl = CFBundleGetBundleWithIdentifier(bundleName);
                     if (bndl == NULL) continue;
                     
-                    CFNumberRef minNum = CFDictionaryGetValue(filter, kOPMinBundleVersionKey);
-                    CFNumberRef maxNum = CFDictionaryGetValue(filter, kOPMaxBundleVersionKey);
+                    CFNumberRef minNum = CFDictionaryGetValue(filter, kPSMinBundleVersionKey);
+                    CFNumberRef maxNum = CFDictionaryGetValue(filter, kPSMaxBundleVersionKey);
                     
                     unsigned int version = CFBundleGetVersionNumber(bndl);
                     
@@ -116,17 +135,12 @@ bool check_bundles(CFDictionaryRef filters) {
 }
 
 bool check_classes(CFDictionaryRef filters) {
-    CFArrayRef classesFilter = CFDictionaryGetValue(filters, kOPClassesKey);
+    CFArrayRef classesFilter = CFDictionaryGetValue(filters, kPSClassesKey);
     
     if (classesFilter != NULL && CFGetTypeID(classesFilter) == CFArrayGetTypeID()) {
         for (CFIndex i = 0; i < CFArrayGetCount(classesFilter); i++) {
             CFStringRef class = CFArrayGetValueAtIndex(classesFilter, i);
-            static void *(*getClass)(const char *) = NULL;
-            static dispatch_once_t onceToken;
-            dispatch_once(&onceToken, ^{
-                getClass = dlsym(RTLD_DEFAULT, "objc_getClass");
-                
-            });
+            solve_symbols();
             
             if (getClass != NULL) {
                 if (getClass(CFStringGetCStringPtr(class, kCFStringEncodingUTF8)) != NULL) {
@@ -137,6 +151,29 @@ bool check_classes(CFDictionaryRef filters) {
     }
     
     return classesFilter == NULL;
+}
+
+void load_simbl(CFBundleRef bundle) {
+    // We need to somehow get a pointer to the principal class in this bundle and
+    // call +install on it
+    CFDictionaryRef info = CFBundleGetInfoDictionary(bundle);
+    CFBundleLoadExecutable(bundle);
+    
+    solve_symbols();
+    
+    // Could not solve symbols?
+    if (getClass == NULL) return;
+    
+    // Some classes have a +install method that the SIMBL agent calls upon loading.
+    // We should atleast make an attempt to call it
+    CFStringRef principalClassName = CFDictionaryGetValue(info, CFSTR("NSPrincipalClass"));
+    
+    // want the metaclass of the principal class since install is a class method
+    void *principalClass = getClassObj(getClass(CFStringGetCStringPtr(principalClassName, kCFStringEncodingUTF8)));
+    void *install = registerName("install");
+    if (principalClass != NULL && respondsToSelector(principalClass, install)) {
+        msgSend(principalClass, install);
+    }
 }
 
 void __ParasiteProcessExtensions(CFURLRef libraries, CFBundleRef mainBundle, CFStringRef executableName) {
@@ -151,6 +188,7 @@ void __ParasiteProcessExtensions(CFURLRef libraries, CFBundleRef mainBundle, CFS
     if (bundles == NULL) return;
     
     CFMutableArrayRef shouldLoad = CFArrayCreateMutable(kCFAllocatorDefault, CFArrayGetCount(bundles), &kCFTypeArrayCallBacks);
+    CFMutableArrayRef simblLoad = CFArrayCreateMutable(kCFAllocatorDefault, CFArrayGetCount(bundles), &kCFTypeArrayCallBacks);
     
     for (CFIndex i = 0; i < CFArrayGetCount(bundles); i++) {
         bool status = true;
@@ -167,30 +205,50 @@ void __ParasiteProcessExtensions(CFURLRef libraries, CFBundleRef mainBundle, CFS
             continue;
         }
         
-        CFDictionaryRef filters = CFDictionaryGetValue(info, kOPFiltersKey);
+        // By default try our filters, if it doesnt exist or is the wrong type
+        // then we check for SIMBL filters
+        CFDictionaryRef filters = CFDictionaryGetValue(info, kPSFiltersKey);
+        
+        // backwards support for OPFilters instead of PSFilters, they are
+        // the same format, anyway
         if (filters == NULL || CFGetTypeID(filters) != CFDictionaryGetTypeID()) {
-            CFRelease(bundle);
-            continue;
+            filters = CFDictionaryGetValue(info, kOPFiltersKey);
         }
         
-        bool match_all = true;
-        CFStringRef mode = CFDictionaryGetValue(filters, kOPModeKey);
-        if (mode != NULL) {
-            match_all = !CFEqual(mode, kOPAnyValue);
-        }
-        
-        status = commit_status(status, check_cf_version(filters), match_all);
-        status = commit_status(status, check_executable_name(filters, executableName), match_all);
-        status = commit_status(status, check_bundles(filters), match_all);
-        status = commit_status(status, check_classes(filters), match_all);
-        
-        if (status) {
-            CFURLRef executableURL = CFBundleCopyExecutableURL(bundle);
-            if (executableURL != NULL) {
-                CFArrayAppendValue(shouldLoad, executableURL);
-                CFRelease(executableURL);
+        if (filters == NULL || CFGetTypeID(filters) != CFDictionaryGetTypeID()) {
+            if ((filters = CFDictionaryGetValue(info, kSIMBLFiltersKey)) != NULL &&
+                CFGetTypeID(filters) == CFArrayGetTypeID()) {
+                // We have a SIMBL plugin, try to load it
+                // we can safely load it here because unlike Parasite of Opee, SIMBL
+                // bundle identifiers are specifically the application running rather than
+                // a library that might be loaded. This is lucky because it saves me about 10 minutes
+                // reformatting this function.
+                if (check_bundles((CFArrayRef)filters)) {
+                    CFArrayAppendValue(simblLoad, bundle);
+                }
+            }
+            
+        } else {
+            bool match_all = true;
+            CFStringRef mode = CFDictionaryGetValue(filters, kPSModeKey);
+            if (mode != NULL) {
+                match_all = !CFEqual(mode, kPSAnyValue);
+            }
+            
+            status = commit_status(status, check_cf_version(filters), match_all);
+            status = commit_status(status, check_executable_name(filters, executableName), match_all);
+            status = commit_status(status, check_bundles(CFDictionaryGetValue(filters, kPSBundlesKey)), match_all);
+            status = commit_status(status, check_classes(filters), match_all);
+            
+            if (status) {
+                CFURLRef executableURL = CFBundleCopyExecutableURL(bundle);
+                if (executableURL != NULL) {
+                    CFArrayAppendValue(shouldLoad, executableURL);
+                    CFRelease(executableURL);
+                }
             }
         }
+    
         
         CFRelease(bundle);
     }
@@ -206,7 +264,12 @@ void __ParasiteProcessExtensions(CFURLRef libraries, CFBundleRef mainBundle, CFS
         if (handle == NULL) {
             OPLog(OPLogLevelError, "%s", dlerror());
         }
-        
+    }
+    
+    for (CFIndex i = 0; i < CFArrayGetCount(simblLoad); i++) {
+        CFBundleRef bndl = (CFBundleRef)CFArrayGetValueAtIndex(simblLoad, i);
+        if (CFGetTypeID(bndl) == CFBundleGetTypeID())
+            load_simbl(bndl);
     }
     
     CFRelease(bundles);
