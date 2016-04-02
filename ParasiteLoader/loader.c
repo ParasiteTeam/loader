@@ -123,13 +123,27 @@ bool check_bundles(CFArrayRef bundlesFilter) {
                     
                     if (minNum != NULL) {
                         unsigned int min = 0;
-                        CFNumberGetValue(minNum, kCFNumberIntType, &min);
+                        // Some people might put the number as a string instead of a number
+                        // help them with that
+                        if (CFGetTypeID(minNum) == CFStringGetTypeID()) {
+                            min = CFStringGetIntValue((CFStringRef)minNum);
+                            
+                        } else if (CFGetTypeID(minNum) == CFNumberGetTypeID()) {
+                            CFNumberGetValue(minNum, kCFNumberIntType, &min);
+                        }
+                        
                         if (min > version) continue;
                     }
                     
                     if (maxNum != NULL) {
                         unsigned int max = 0;
-                        CFNumberGetValue(maxNum, kCFNumberIntType, &max);
+                        if (CFGetTypeID(maxNum) == CFStringGetTypeID()) {
+                            max = CFStringGetIntValue((CFStringRef)maxNum);
+                            
+                        } else if (CFGetTypeID(maxNum) == CFNumberGetTypeID()) {
+                            CFNumberGetValue(maxNum, kCFNumberIntType, &max);
+                        }
+                        
                         if (max < version) continue;
                     }
                     
