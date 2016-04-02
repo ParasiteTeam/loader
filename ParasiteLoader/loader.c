@@ -130,6 +130,9 @@ bool check_bundles(CFArrayRef bundlesFilter) {
                             
                         } else if (CFGetTypeID(minNum) == CFNumberGetTypeID()) {
                             CFNumberGetValue(minNum, kCFNumberIntType, &min);
+                        } else {
+                            //!TODO log something
+                            continue;
                         }
                         
                         if (min > version) continue;
@@ -137,11 +140,14 @@ bool check_bundles(CFArrayRef bundlesFilter) {
                     
                     if (maxNum != NULL) {
                         unsigned int max = 0;
+
                         if (CFGetTypeID(maxNum) == CFStringGetTypeID()) {
                             max = CFStringGetIntValue((CFStringRef)maxNum);
                             
                         } else if (CFGetTypeID(maxNum) == CFNumberGetTypeID()) {
                             CFNumberGetValue(maxNum, kCFNumberIntType, &max);
+                        } else {
+                            continue;
                         }
                         
                         if (max < version) continue;
