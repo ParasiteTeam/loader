@@ -119,10 +119,23 @@ bool check_bundles(CFArrayRef bundlesFilter) {
                     CFNumberRef minNum = CFDictionaryGetValue(filter, kPSMinBundleVersionKey);
                     CFNumberRef maxNum = CFDictionaryGetValue(filter, kPSMaxBundleVersionKey);
                     
-                    unsigned int version = CFBundleGetVersionNumber(bndl);
+                    CFDictionaryRef info = CFBundleGetInfoDictionary(bndl);
+                    CFTypeRef versionNum = CFDictionaryGetValue(info, kCFBundleVersionKey);
+                    
+                    int version;
+                    if (CFGetTypeID(versionNum) == CFStringGetTypeID()) {
+                        version = CFStringGetIntValue((CFStringRef)versionNum);
+                        
+                    } else if (CFGetTypeID(versionNum) == CFNumberGetTypeID()) {
+                        CFNumberGetValue(versionNum, kCFNumberIntType, &version);
+                        
+                    } else {
+                        // Can't read the version, not point in testing it
+                        return true;
+                    }
                     
                     if (minNum != NULL) {
-                        unsigned int min = 0;
+                        int min = 0;
                         // Some people might put the number as a string instead of a number
                         // help them with that
                         if (CFGetTypeID(minNum) == CFStringGetTypeID()) {
@@ -139,7 +152,7 @@ bool check_bundles(CFArrayRef bundlesFilter) {
                     }
                     
                     if (maxNum != NULL) {
-                        unsigned int max = 0;
+                        int max = 0;
 
                         if (CFGetTypeID(maxNum) == CFStringGetTypeID()) {
                             max = CFStringGetIntValue((CFStringRef)maxNum);
