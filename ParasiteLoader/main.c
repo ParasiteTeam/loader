@@ -54,6 +54,7 @@ static void __ParasiteInit(int argc, char **argv, char **envp) {
     BLACKLIST(ssh);
 
     // Blacklist developer tools
+    BLACKLIST(clang)
     BLACKLIST(git);
     BLACKLIST(xcodebuild);
     BLACKLIST(gcc);

@@ -29,11 +29,15 @@ void solve_symbols() {
     });
 }
 
-bool commit_status(bool orig, bool new, bool match_all) {
+unsigned char commit_status(unsigned char orig, unsigned char new, bool match_all) {
+    // Non-zero, non-one status means unavailable, so skip
+    if (orig > 1) return new;
+    if (new > 1) return orig;
+    
     return (orig && new) || ((new || orig) && !match_all);
 }
 
-bool check_cf_version(CFDictionaryRef filters) {
+unsigned char check_cf_version(CFDictionaryRef filters) {
     CFArrayRef versionFilter = CFDictionaryGetValue(filters, kPSCoreFoundationVersionKey);
     
     if (versionFilter != NULL && CFGetTypeID(versionFilter) == CFArrayGetTypeID()) {
@@ -69,10 +73,10 @@ bool check_cf_version(CFDictionaryRef filters) {
         }
     }
     
-    return versionFilter == NULL;
+    return 2;
 }
 
-bool check_executable_name(CFDictionaryRef filters, CFStringRef executableName) {
+unsigned char check_executable_name(CFDictionaryRef filters, CFStringRef executableName) {
     CFArrayRef executableFilter = CFDictionaryGetValue(filters, kPSExecutablesKey);
     
     if (executableFilter != NULL && CFGetTypeID(executableFilter) == CFArrayGetTypeID()) {
@@ -84,10 +88,10 @@ bool check_executable_name(CFDictionaryRef filters, CFStringRef executableName) 
         }
     }
     
-    return executableFilter == NULL;
+    return 2;
 }
 
-bool check_bundles(CFArrayRef bundlesFilter) {
+unsigned char check_bundles(CFArrayRef bundlesFilter) {
     if (bundlesFilter != NULL && CFGetTypeID(bundlesFilter) == CFArrayGetTypeID()) {
         for (CFIndex i = 0; i < CFArrayGetCount(bundlesFilter); i++) {
             CFTypeRef entry = CFArrayGetValueAtIndex(bundlesFilter, i);
@@ -172,10 +176,10 @@ bool check_bundles(CFArrayRef bundlesFilter) {
         }
     }
     
-    return bundlesFilter == NULL;
+    return 2;
 }
 
-bool check_classes(CFDictionaryRef filters) {
+unsigned char check_classes(CFDictionaryRef filters) {
     CFArrayRef classesFilter = CFDictionaryGetValue(filters, kPSClassesKey);
     
     if (classesFilter != NULL && CFGetTypeID(classesFilter) == CFArrayGetTypeID()) {
@@ -191,7 +195,7 @@ bool check_classes(CFDictionaryRef filters) {
         }
     }
     
-    return classesFilter == NULL;
+    return 2;
 }
 
 void load_simbl(CFBundleRef bundle) {
@@ -232,8 +236,6 @@ void __ParasiteProcessExtensions(CFURLRef libraries, CFBundleRef mainBundle, CFS
     CFMutableArrayRef simblLoad = CFArrayCreateMutable(kCFAllocatorDefault, CFArrayGetCount(bundles), &kCFTypeArrayCallBacks);
     
     for (CFIndex i = 0; i < CFArrayGetCount(bundles); i++) {
-        bool status = true;
-        
         CFURLRef bundleURL = CFArrayGetValueAtIndex(bundles, i);
         CFBundleRef bundle = CFBundleCreate(kCFAllocatorDefault, bundleURL);
         if (bundle == NULL) {
@@ -276,12 +278,15 @@ void __ParasiteProcessExtensions(CFURLRef libraries, CFBundleRef mainBundle, CFS
                 match_all = !CFEqual(mode, kPSAnyValue);
             }
             
+            unsigned char status = 2;
             status = commit_status(status, check_cf_version(filters), match_all);
+
             status = commit_status(status, check_executable_name(filters, executableName), match_all);
+            
             status = commit_status(status, check_bundles(CFDictionaryGetValue(filters, kPSBundlesKey)), match_all);
             status = commit_status(status, check_classes(filters), match_all);
             
-            if (status) {
+            if (status == 1) {
                 CFURLRef executableURL = CFBundleCopyExecutableURL(bundle);
                 if (executableURL != NULL) {
                     CFArrayAppendValue(shouldLoad, executableURL);
