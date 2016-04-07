@@ -8,6 +8,7 @@
 
 #include "main.h"
 #include "loader.h"
+#include "runtime.h"
 
 static void *(*getClassObj)(void *) = NULL;
 static void *(*getClass)(const char *) = NULL;
@@ -299,6 +300,8 @@ void __ParasiteProcessExtensions(CFURLRef libraries, CFBundleRef mainBundle, CFS
         CFRelease(bundle);
     }
     
+    CFIndex total = CFArrayGetCount(shouldLoad) + CFArrayGetCount(simblLoad);
+    
     for (CFIndex i = 0; i < CFArrayGetCount(shouldLoad); i++) {
         CFURLRef executableURL = CFArrayGetValueAtIndex(shouldLoad, i);
         const char executablePath[PATH_MAX];
@@ -310,12 +313,18 @@ void __ParasiteProcessExtensions(CFURLRef libraries, CFBundleRef mainBundle, CFS
         if (handle == NULL) {
             OPLog(OPLogLevelError, "%s", dlerror());
         }
+        
+        PSNotify(executableURL, i, total);
     }
     
     for (CFIndex i = 0; i < CFArrayGetCount(simblLoad); i++) {
         CFBundleRef bndl = (CFBundleRef)CFArrayGetValueAtIndex(simblLoad, i);
         if (CFGetTypeID(bndl) == CFBundleGetTypeID())
             load_simbl(bndl);
+        
+        CFURLRef ex = CFBundleCopyExecutableURL(bndl);
+        PSNotify(ex, i + CFArrayGetCount(shouldLoad), total);
+        CFRelease(ex);
     }
     
     CFRelease(bundles);

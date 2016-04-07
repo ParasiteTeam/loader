@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "FA42F1221CAC744300AB959B"
-               BuildableName = "libParasiteLoader.dylib"
+               BuildableName = "ParasiteLoader.dylib"
                BlueprintName = "ParasiteLoader"
                ReferencedContainer = "container:ParasiteLoader.xcodeproj">
             </BuildableReference>
@@ -46,7 +46,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "FA42F1221CAC744300AB959B"
-            BuildableName = "libParasiteLoader.dylib"
+            BuildableName = "ParasiteLoader.dylib"
             BlueprintName = "ParasiteLoader"
             ReferencedContainer = "container:ParasiteLoader.xcodeproj">
          </BuildableReference>
@@ -64,7 +64,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "FA42F1221CAC744300AB959B"
-            BuildableName = "libParasiteLoader.dylib"
+            BuildableName = "ParasiteLoader.dylib"
             BlueprintName = "ParasiteLoader"
             ReferencedContainer = "container:ParasiteLoader.xcodeproj">
          </BuildableReference>
