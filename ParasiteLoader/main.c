@@ -52,7 +52,15 @@ static void __ParasiteInit(int argc, char **argv, char **envp) {
     BLACKLIST(useractivityd);
     BLACKLIST(syslogd);
     BLACKLIST(ssh);
+    
+    // Added Parasite 1.0.0b3
+    BLACKLIST(opendirectoryd);
+    BLACKLIST(configd);
+    BLACKLIST(UserEventAgent);
 
+    // Just in case...
+    BLACKLIST(DumpPanic);
+    
     // Blacklist developer tools
     BLACKLIST(clang)
     BLACKLIST(git);
