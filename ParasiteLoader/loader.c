@@ -329,4 +329,5 @@ void __ParasiteProcessExtensions(CFURLRef libraries, CFBundleRef mainBundle, CFS
     
     CFRelease(bundles);
     CFRelease(shouldLoad);
+    CFRelease(simblLoad);
 }
