@@ -23,7 +23,9 @@ void PSNotify(CFURLRef path, CFIndex idx, CFIndex total) {
         CFIndex tot = CFArrayGetCount(callbacks);
         for (i = 0; i < tot; i++) {
             PSLoaderCallback cb = CFArrayGetValueAtIndex(callbacks, i);
-            cb(path, idx, total);
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                cb(path, idx, total);
+            });
         }
         
         if (idx == total - 1 && callbacks != NULL) {
