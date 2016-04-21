@@ -13,7 +13,7 @@ static dispatch_queue_t callback_queue() {
     static dispatch_queue_t callback_queue = NULL;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        callback_queue = dispatch_queue_create("com.parasite.loader.callbacks.queue", NULL);
+        callback_queue = dispatch_queue_create("com.parasite.loader.callbacks.queue", DISPATCH_QUEUE_SERIAL);
     });
     return callback_queue;
 }
